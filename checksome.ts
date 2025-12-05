@@ -5,6 +5,8 @@ interface ServersI {
   reqHackLvl: number;
   availMoney: number;
   rootAccess: boolean;
+  securityLvl: number;
+  minSecurityLvl: number;
 }
 
 export async function main(ns: NS) {
@@ -23,13 +25,14 @@ export async function main(ns: NS) {
     servers.push({
       name: target,
       totalRam: ns.getServerMaxRam(target),
-      availRam:
-        Math.round(
-          (ns.getServerMaxRam(target) - ns.getServerUsedRam(target)) * 100
-        ) / 100,
+      availRam: roundOffTwoDec(
+        ns.getServerMaxRam(target) - ns.getServerUsedRam(target)
+      ),
       reqHackLvl: ns.getServerRequiredHackingLevel(target),
-      availMoney: ns.getServerMoneyAvailable(target),
+      availMoney: roundOffTwoDec(ns.getServerMoneyAvailable(target)),
       rootAccess: ns.hasRootAccess(target),
+      securityLvl: roundOffTwoDec(ns.getServerSecurityLevel(target)),
+      minSecurityLvl: ns.getServerMinSecurityLevel(target),
     });
   }
 
@@ -56,7 +59,9 @@ export async function main(ns: NS) {
   );
   for (const hkd of servers) {
     if (hkd.rootAccess) {
-      ns.tprint(`${hkd.name} : ${hkd.availRam}GB : \$${hkd.availMoney}`);
+      ns.tprint(
+        `${hkd.name} : ${hkd.availRam}GB : \$${hkd.availMoney} : Security LVL of ${hkd.securityLvl} (min ${hkd.minSecurityLvl})`
+      );
     }
   }
   ns.tprint(
@@ -70,9 +75,7 @@ export async function main(ns: NS) {
   for (const mlk of servers) {
     if (mlk.rootAccess && mlk.availMoney > 0) {
       ns.tprint(
-        `${mlk.name} is ready to get milked with \$${
-          Math.round(mlk.availMoney * 100) / 100
-        } inside.`
+        `${mlk.name} is ready to get milked with \$${mlk.availMoney} inside.`
       );
     }
   }
@@ -124,4 +127,8 @@ export async function main(ns: NS) {
     ns.tprint(e);
   }
   */
+}
+
+function roundOffTwoDec(n: number) {
+  return Math.round(n * 100) / 100;
 }
