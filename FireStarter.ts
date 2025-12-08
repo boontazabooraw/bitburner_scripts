@@ -20,19 +20,34 @@ export async function main(ns: NS) {
       level2hack =
         ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(target);
       ports2hack =
-        ns.getServerNumPortsRequired(target) ===
+        ns.getServerNumPortsRequired(target) !=
         ns.getServer(target).openPortCount;
 
-      if (level2hack) {
-        !ns.getServer(target).sshPortOpen && ns.brutessh(target);
-        ns.tprint(`SSH Port opened for ${target}`);
-        !ns.getServer(target).ftpPortOpen && ns.ftpcrack(target);
-        ns.tprint(`FTP Port opened for ${target}`);
-        !ns.getServer(target).smtpPortOpen && ns.relaysmtp(target);
-        ns.tprint(`${ports2hack} ports opened for ${target}`);
+      if (ports2hack) {
+        if (
+          !ns.getServer(target).sshPortOpen &&
+          ns.fileExists("BruteSSH.exe")
+        ) {
+          ns.brutessh(target);
+          ns.tprint(`SSH Port opened for ${target}`);
+        }
+        if (
+          !ns.getServer(target).ftpPortOpen &&
+          ns.fileExists("FTPCrack.exe")
+        ) {
+          ns.ftpcrack(target);
+          ns.tprint(`FTP Port opened for ${target}`);
+        }
+        if (
+          !ns.getServer(target).smtpPortOpen &&
+          ns.fileExists("FTPCrack.exe")
+        ) {
+          ns.relaysmtp(target);
+          ns.tprint(`SMTP Port opened for ${target}`);
+        }
       }
 
-      if (level2hack && ports2hack) {
+      if (level2hack) {
         ns.nuke(target);
         ns.print("Target nuked...");
         ns.tprint(`Pwnd: ${target}; `);
