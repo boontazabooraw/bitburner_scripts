@@ -1,4 +1,4 @@
-export async function main(ns: NS) {
+export async function main(ns) {
 
     let hosts = new Set(["home"]);
     let excludes = ns.getPurchasedServers();

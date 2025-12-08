@@ -1,6 +1,7 @@
 export async function main(ns: NS) {
   let hosts = new Set(["home"]);
-  let excludes = ["home", "One"];
+  let excludes: string[] = ns.getPurchasedServers();
+  excludes.push("home");
 
   hosts.forEach((host) => {
     ns.scan(host).forEach((n) => hosts.add(n));
