@@ -1,20 +1,22 @@
 export async function main(ns: NS) {
-  let hosts = new Set(["home"]);
-  let excludes = ["home", "One", "CSEC", "Donation", "Donation_2"];
 
-  hosts.forEach((host) => {
-    ns.scan(host).forEach((n) => hosts.add(n));
+  let hosts = new Set(["home"]);
+  let excludes: string[] = ns.getPurchasedServers();
+  excludes.push('home');
+
+  hosts.forEach(host => {
+    ns.scan(host).forEach(n => hosts.add(n));
   });
 
   let hitlist = Array.from(hosts)
-    .filter((server) => ns.hasRootAccess(server))
-    .filter((server) => !excludes.includes(server));
+    .filter(server => ns.hasRootAccess(server)
+      && !excludes.includes(server)
+      && ns.getServerMoneyAvailable(server) != 0
+      && ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(server));
 
   while (true) {
     for (let target of hitlist) {
-      if (ns.getHackingLevel() >= ns.getServerRequiredHackingLevel(target)) {
-        await ns.hack(target);
-      }
+      await ns.hack(target);
     }
     await ns.sleep(100);
   }
